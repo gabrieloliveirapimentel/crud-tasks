@@ -1,0 +1,11 @@
+/app/vendor
+/app/.idea
+/app/Homestead.json
+/app/Homestead.yaml
+/app/*.env
+
+/app/storage/*
+/app/bootstrap/cache/
+
+*.env
+*.phpunit.result.cache
