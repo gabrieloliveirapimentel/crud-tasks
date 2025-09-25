@@ -23,7 +23,7 @@ class TasksController extends Controller
         ]);
     }
 
-    public function getTasksByUuid(int $id)
+    public function getTasksById(int $id)
     {
         $service = app()->make(TasksService::class);
         $task = $service->getById($id);
