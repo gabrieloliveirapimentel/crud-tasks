@@ -2,6 +2,8 @@
 
 namespace App\DTO;
 
+use App\Helpers\Utils;
+
 class InfTasksStatusDTO extends DTO
 {
     protected function set()
@@ -10,8 +12,8 @@ class InfTasksStatusDTO extends DTO
             'id'           => (int) $this->dto['id'] ?? null,
             'uuid'         => (string) $this->dto['uuid'] ?? null,
             'description'  => $this->dto['description'] ?? null,
-            'updatedAt'    => $this->dto['updated_at'] ?? null,
-            'createdAt'    => $this->dto['created_at'] ?? null 
+            'updatedAt'    => Utils::formatDate($this->dto['updated_at']) ?? null,
+            'createdAt'    => Utils::formatDate($this->dto['created_at']) ?? null 
         ];
     }
 }
