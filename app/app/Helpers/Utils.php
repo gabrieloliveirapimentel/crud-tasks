@@ -11,6 +11,6 @@ class Utils
 
     public static function formatDate($date): string
     {
-        return \Carbon\Carbon::parse($date)->format('Y-m-d H:i:s');
+        return \Carbon\Carbon::parse($date)->format('d-m-Y H:i:s');
     }
 }
