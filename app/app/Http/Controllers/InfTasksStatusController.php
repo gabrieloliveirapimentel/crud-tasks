@@ -21,10 +21,10 @@ class InfTasksStatusController extends Controller
         ]);
     }
 
-    public function getStatusByUuid(string $uuid)
+    public function getStatusById(int $id)
     {
         $service = app()->make(InfTasksStatusService::class);
-        $status = $service->getByUuid($uuid);
+        $status = $service->getById($id);
 
         if (!$status) {
             return response()->json([
@@ -54,12 +54,12 @@ class InfTasksStatusController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, string $uuid)
+    public function updateStatus(Request $request, int $id)
     {
         $service = app()->make(InfTasksStatusService::class);
         $data = $request->only(['description']);
 
-        $statusUpdated = $service->update($uuid, $data);
+        $statusUpdated = $service->update($id, $data);
         if ($statusUpdated) {
             return response()->json([
                 'message' => 'Status atualizado com sucesso!'
@@ -71,10 +71,10 @@ class InfTasksStatusController extends Controller
         }
     }
 
-    public function deleteStatus(string $uuid)
+    public function deleteStatus(int $id)
     {
         $service = app()->make(InfTasksStatusService::class);
-        $statusDeleted = $service->delete($uuid);
+        $statusDeleted = $service->delete($id);
 
         if ($statusDeleted) {
             return response()->json([

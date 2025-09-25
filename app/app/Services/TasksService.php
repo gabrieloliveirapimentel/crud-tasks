@@ -19,7 +19,7 @@ class TasksService
         return (new TasksModel())->getAllTasks();
     }
 
-    public function getByUuid(string $uuid)
+    public function getByUuid(int $uuid)
     {
         if (!Utils::isValidUuid($uuid)) return null;
         $task = (new TasksModel())->getTaskByUuid($uuid);
@@ -46,34 +46,26 @@ class TasksService
         return TasksModel::create($data);
     }
 
-    public function update(string $uuid, array $data)
+    public function update(int $id, array $data)
     {
-        if (!Utils::isValidUuid($uuid)) return false;
-
         $status = InfTasksStatusModel::where('description', $data['status'])->where('deleted_at', null)->first();
         if (!$status) return false;
 
-        $task = TasksModel::where('uuid', $uuid)->where('deleted_at', null)->first();
+        $task = TasksModel::where('id', $id)->where('deleted_at', null)->first();
         if (!$task) return false;
 
         unset($data['status']);
         $data = [...$data, 'id_status' => $status['id'], 'updated_at' => Carbon::now()];
-        $task = TasksModel::where('uuid', $uuid)->first();
 
-        if ($task) {
-            $task->update($data);
-            return true;
-        }
-        return false;
+        $task->update($data);
+        return true;
     }
 
-    public function delete(string $uuid)
+    public function delete(int $id)
     {
-        if (!Utils::isValidUuid($uuid)) return false;
-
-        $status = TasksModel::where('uuid', $uuid)->first();
-        if ($status) {
-            $status->update(['deleted_at' => Carbon::now()]);
+        $task = TasksModel::where('id', $id)->first();
+        if ($task) {
+            $task->update(['deleted_at' => Carbon::now()]);
             return true;
         }
 

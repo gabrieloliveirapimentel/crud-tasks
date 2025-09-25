@@ -23,10 +23,10 @@ class TasksController extends Controller
         ]);
     }
 
-    public function getTasksByUuid(string $uuid)
+    public function getTasksByUuid(int $id)
     {
         $service = app()->make(TasksService::class);
-        $task = $service->getByUuid($uuid);
+        $task = $service->getById($id);
 
         if (!$task) {
             return response()->json([
@@ -62,12 +62,12 @@ class TasksController extends Controller
         ]);
     }
 
-    public function updateTask(Request $request, string $uuid)
+    public function updateTask(Request $request, int $id)
     {
         $service = app()->make(TasksService::class);
         $data = $request->only(['status', 'description', 'title']);
 
-        $taskUpdated = $service->update($uuid, $data);
+        $taskUpdated = $service->update($id, $data);
         if ($taskUpdated) {
             return response()->json([
                 'message' => 'Tarefa atualizada com sucesso!'
@@ -79,10 +79,10 @@ class TasksController extends Controller
         }
     }
 
-    public function deleteTask(string $uuid)
+    public function deleteTask(int $id)
     {
         $service = app()->make(TasksService::class);
-        $taskDeleted = $service->delete($uuid);
+        $taskDeleted = $service->delete($id);
 
         if ($taskDeleted) {
             return response()->json([

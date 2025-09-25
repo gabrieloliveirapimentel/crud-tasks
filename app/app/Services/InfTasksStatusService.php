@@ -31,12 +31,10 @@ class InfTasksStatusService
         return InfTasksStatusModel::create($data);
     }
 
-    public function update(string $uuid, array $data)
+    public function update(int $id, array $data)
     {
-        if (!Utils::isValidUuid($uuid)) return false;
-
         $data = [...$data, 'updated_at' => Carbon::now()];
-        $status = InfTasksStatusModel::where('uuid', $uuid)->first();
+        $status = InfTasksStatusModel::where('id', $id)->first();
 
         if ($status) {
             $status->update($data);
@@ -45,11 +43,9 @@ class InfTasksStatusService
         return false;
     }
 
-    public function delete(string $uuid)
+    public function delete(int $id)
     {
-        if (!Utils::isValidUuid($uuid)) return false;
-
-        $status = InfTasksStatusModel::where('uuid', $uuid)->first();
+        $status = InfTasksStatusModel::where('id', $id)->first();
         if ($status) {
             $status->update(['deleted_at' => Carbon::now()]);
             return true;
