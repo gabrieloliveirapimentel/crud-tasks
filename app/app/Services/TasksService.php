@@ -10,27 +10,28 @@ use App\Models\TasksModel;
 
 class TasksService
 {
-    public function getAll($filters)
+    public function getAll(array $filters)
     {
-        if ($filters) {
-            return (new TasksModel())->getAllTasksByFilters($filters);
-        }
-
-        return (new TasksModel())->getAllTasks();
-    }
-
-    public function getByUuid(int $uuid)
-    {
-        if (!Utils::isValidUuid($uuid)) return null;
-        $task = (new TasksModel())->getTaskByUuid($uuid);
-
-        if (!$task) return null;
-        return $task;
+        return (new TasksModel())->getAllTasksByFilters($filters);
     }
 
     public function getById(int $id)
     {
-        return TasksModel::where('id', $id)->where('deleted_at', null)->first();
+        $task = (new TasksModel())->getTaskById($id);
+
+        if (!$task) {
+            (new LogsService())->create([
+                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} não encontrada.",
+                'action' => 'GET'
+            ]);
+            return null;
+        }
+
+        (new LogsService())->create([
+            'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} encontrada.",
+            'action' => 'GET'
+        ]);
+        return $task;
     }
 
     public function create(array $data)
@@ -38,26 +39,52 @@ class TasksService
         $data['uuid'] = Str::uuid();
 
         $status = InfTasksStatusModel::where('description', $data['status'])->where('deleted_at', null)->first();
-        if (!$status) return false;
+        if (!$status) {
+            (new LogsService())->create([
+                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Status '{$data['status']}' não encontrado ao criar tarefa.",
+                'action' => 'CREATE'
+            ]);
+            return false;
+        }
 
         $data['id_status'] = $status['id'];
         unset($data['status']);
 
+        (new LogsService())->create([
+            'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa '{$data['title']}' criada com sucesso.",
+            'action' => 'CREATE'
+        ]);
         return TasksModel::create($data);
     }
 
     public function update(int $id, array $data)
     {
         $status = InfTasksStatusModel::where('description', $data['status'])->where('deleted_at', null)->first();
-        if (!$status) return false;
+        if (!$status) {
+            (new LogsService())->create([
+                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Status '{$data['status']}' não encontrado ao atualizar tarefa.",
+                'action' => 'UPDATE'
+            ]);
+            return false;
+        }
 
         $task = TasksModel::where('id', $id)->where('deleted_at', null)->first();
-        if (!$task) return false;
+        if (!$task) {
+            (new LogsService())->create([
+                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} não encontrada ao atualizar.",
+                'action' => 'UPDATE'
+            ]);
+            return false;
+        }
 
         unset($data['status']);
         $data = [...$data, 'id_status' => $status['id'], 'updated_at' => Carbon::now()];
 
         $task->update($data);
+        (new LogsService())->create([
+            'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} atualizada com sucesso.",
+            'action' => 'UPDATE'
+        ]);
         return true;
     }
 
@@ -66,9 +93,17 @@ class TasksService
         $task = TasksModel::where('id', $id)->first();
         if ($task) {
             $task->update(['deleted_at' => Carbon::now()]);
+            (new LogsService())->create([
+                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} deletada com sucesso.",
+                'action' => 'DELETE'
+            ]);
             return true;
         }
 
+        (new LogsService())->create([
+            'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} não encontrada ao deletar.",
+            'action' => 'DELETE'
+        ]);
         return false;
     }
 }

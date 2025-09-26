@@ -18,7 +18,7 @@ class TasksModel extends Model
         'id_status'
     ];
 
-    public function getTaskByUuid(string $uuid)
+    public function getTaskById(int $id)
     {
         return $this->select([
                         'rt.id', 
@@ -31,7 +31,7 @@ class TasksModel extends Model
                     ])
                 ->from('reg_tasks as rt')
                 ->join('inf_tasks_status as its', 'rt.id_status', '=', 'its.id')
-                ->where('rt.uuid', $uuid)
+                ->where('rt.id', $id)
                 ->where('rt.deleted_at', null)
                 ->where('its.deleted_at', null)
                 ->first();
@@ -80,8 +80,6 @@ class TasksModel extends Model
         }
 
         if (isset($filters['date'])) {
-
-
             $query->where('rt.created_at', 'like', '%' . date_format(date_create($filters['date']), 'Y-m-d') . '%');
         }
 

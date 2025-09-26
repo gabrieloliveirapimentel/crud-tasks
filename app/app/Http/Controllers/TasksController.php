@@ -55,7 +55,6 @@ class TasksController extends Controller
         }
 
         $taskDTO = InfTasksStatusDTO::get($task->toArray());
-
         return response()->json([
             'message' => 'Tarefa criada com sucesso!',
             'data'    => $taskDTO['uuid']
