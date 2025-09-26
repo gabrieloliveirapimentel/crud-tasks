@@ -1,0 +1,286 @@
+{
+	"info": {
+		"_postman_id": "06ee513b-fee0-46b2-9e8d-1cd1b888a97f",
+		"name": "Tarefas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29029259"
+	},
+	"item": [
+		{
+			"name": "Logs",
+			"item": [
+				{
+					"name": "Listar logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-tasks}}/logs",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"logs"
+							],
+							"query": [
+								{
+									"key": "_id",
+									"value": "d608aaf9-ee3a-4bd9-bece-3d2a42f0150f",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar logs por ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tarefas",
+			"item": [
+				{
+					"name": "Listar todas tarefas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-tasks}}/tasks",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2025-09-26",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "Em andamento",
+									"disabled": true
+								},
+								{
+									"key": "title",
+									"value": "Tarefa 2",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar tarefas por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-tasks}}/tasks/{{task-id}}",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"tasks",
+								"{{task-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Criar tarefa",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Tarefa\",\n    \"description\": \"Descrição da tarefa\",\n    \"status\": \"Concluída\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-tasks}}/tasks",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar tarefa",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{api-tasks}}/tasks/{{task-id}}",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"tasks",
+								"{{task-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar tarefa",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Tarefa 5\",\n    \"description\": \"Descrição da tarefa 5\",\n    \"status\": \"Pendente\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-tasks}}/tasks/{{task-id}}",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"tasks",
+								"{{task-id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Status das tarefas",
+			"item": [
+				{
+					"name": "Listar todos status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-tasks}}/status",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar status por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api-tasks}}/status/{{status-id}}",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"status",
+								"{{status-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Criar status",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Pendente\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-tasks}}/status",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar status",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{api-tasks}}/status/{{status-id}}",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"status",
+								"{{status-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar status",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Concluída\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api-tasks}}/status/{{status-id}}",
+							"host": [
+								"{{api-tasks}}"
+							],
+							"path": [
+								"status",
+								"{{status-id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
