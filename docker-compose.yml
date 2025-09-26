@@ -11,13 +11,14 @@ services:
       - ./app:/var/www
     depends_on:
       - db
+      - mongo_db
 
   db:
     image: postgres:15
     container_name: postgresql_db
     restart: always
     environment:
-      POSTGRES_DB: postgresql_db
+      POSTGRES_DB: postgres_schema
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root123
     ports:
@@ -25,5 +26,16 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  mongo_db:
+    image: mongo:6
+    container_name: mongo_db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root123
+      MONGO_INITDB_DATABASE: mongo_schema
+    ports:
+      - "27017:27017"
+
 volumes:
   db_data:
+  mongo_data:
