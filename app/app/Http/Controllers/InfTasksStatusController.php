@@ -25,7 +25,6 @@ class InfTasksStatusController extends Controller
             $statusDTO = InfTasksStatusDTO::getAll($data->toArray());
             
             return response()->json([
-                'success' => true,
                 'message' => 'Status listados com sucesso!',
                 'data' => $statusDTO
             ]);
@@ -44,7 +43,6 @@ class InfTasksStatusController extends Controller
             $statusDTO = InfTasksStatusDTO::get($status->toArray());
 
             return response()->json([
-                'success' => true,
                 'message' => 'Status encontrado com sucesso!',
                 'data' => $statusDTO
             ]);
@@ -63,7 +61,6 @@ class InfTasksStatusController extends Controller
             $this->service->create($data);
 
             return response()->json([
-                'success' => true,
                 'message' => 'Status criado com sucesso!',
             ]);
         } catch (\Exception $e) {
