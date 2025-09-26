@@ -2,15 +2,26 @@
 
 namespace App\Services;
 
-use App\Helpers\Utils;
-use App\Models\InfTasksStatusModel;
+use ErrorException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+
 use App\Models\TasksModel;
+use App\Validation\TasksValidator;
+use App\Models\InfTasksStatusModel;
 
 class TasksService
 {
-    public function getAll(array $filters)
+    private LogsService $logsService;
+    private TasksValidator $validator;
+
+    public function __construct(LogsService $logsService, TasksValidator $validator)
+    {
+        $this->validator = $validator;
+        $this->logsService = $logsService;
+    }
+
+    public function getAll(array $filters = [])
     {
         return (new TasksModel())->getAllTasksByFilters($filters);
     }
@@ -19,91 +30,53 @@ class TasksService
     {
         $task = (new TasksModel())->getTaskById($id);
 
-        if (!$task) {
-            (new LogsService())->create([
-                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} não encontrada.",
-                'action' => 'GET'
-            ]);
-            return null;
-        }
+        if (!$task)  throw new ErrorException('Tarefa não encontrada.');
 
-        (new LogsService())->create([
-            'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} encontrada.",
-            'action' => 'GET'
-        ]);
+        $this->logsService->logViewTask($id, $task->toArray());
         return $task;
     }
 
     public function create(array $data)
     {
+        $this->validator->validate($data, 'CREATE');
+
         $data['uuid'] = Str::uuid();
 
         $status = InfTasksStatusModel::where('description', $data['status'])->where('deleted_at', null)->first();
-        if (!$status) {
-            (new LogsService())->create([
-                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Status '{$data['status']}' não encontrado ao criar tarefa.",
-                'action' => 'CREATE'
-            ]);
-            return false;
-        }
+        if (!$status) throw new ErrorException('Status não encontrado.');
 
         $data['id_status'] = $status['id'];
         unset($data['status']);
 
-        (new LogsService())->create([
-            'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa '{$data['title']}' criada com sucesso.",
-            'action' => 'CREATE'
-        ]);
-        return TasksModel::create($data);
+        $task = TasksModel::create($data);
+        $this->logsService->logCreatedTask($task->id, $data);
     }
 
     public function update(int $id, array $data)
     {
-        $status = InfTasksStatusModel::where('description', $data['status'])->where('deleted_at', null)->first();
-        if (!$status) {
-            (new LogsService())->create([
-                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Status '{$data['status']}' não encontrado ao atualizar tarefa.",
-                'action' => 'UPDATE'
-            ]);
-            return false;
-        }
+        $this->validator->validate($data, 'UPDATE');
 
         $task = TasksModel::where('id', $id)->where('deleted_at', null)->first();
-        if (!$task) {
-            (new LogsService())->create([
-                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} não encontrada ao atualizar.",
-                'action' => 'UPDATE'
-            ]);
-            return false;
-        }
+        $oldData = $task->toArray();
+
+        if (!$task) throw new ErrorException('Tarefa não encontrada.');
+        
+        $status = InfTasksStatusModel::where('description', $data['status'])->where('deleted_at', null)->first();
+        if (!$status) throw new ErrorException('Status não encontrado.');
 
         unset($data['status']);
         $data = [...$data, 'id_status' => $status['id'], 'updated_at' => Carbon::now()];
 
         $task->update($data);
-        (new LogsService())->create([
-            'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} atualizada com sucesso.",
-            'action' => 'UPDATE'
-        ]);
-        return true;
+        return $this->logsService->logUpdatedTask($id, $oldData, $data);
     }
 
     public function delete(int $id)
     {
         $task = TasksModel::where('id', $id)->first();
-        if ($task) {
-            $task->update(['deleted_at' => Carbon::now()]);
-            (new LogsService())->create([
-                'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} deletada com sucesso.",
-                'action' => 'DELETE'
-            ]);
-            return true;
-        }
+        if (!$task) throw new ErrorException('Tarefa não encontrada.');
 
-        (new LogsService())->create([
-            'message' => "[" . Utils::formatDate(Carbon::now()) . "] Tarefa com ID {$id} não encontrada ao deletar.",
-            'action' => 'DELETE'
-        ]);
-        return false;
+        $task->update(['deleted_at' => Carbon::now()]);
+        return $this->logsService->logDeletedTask($id, $task->toArray());
     }
 }

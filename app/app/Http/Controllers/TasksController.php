@@ -2,95 +2,111 @@
 
 namespace App\Http\Controllers;
 
-use App\DTO\InfTasksStatusDTO;
-use App\DTO\TasksDTO;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Laravel\Lumen\Routing\Controller;
+
+use App\DTO\TasksDTO;
 use App\Services\TasksService;
+use App\Services\LogsService;
 
 class TasksController extends Controller
 {
-    public function getAllTasks(Request $request)
-    {
-        $service = app()->make(TasksService::class);
-        $filters = $request->only(['status', 'title', 'date']);
+    private TasksService $service;
 
-        $data = $service->getAll($filters);
-        $taskDTO = TasksDTO::getAll($data->toArray());
-        return response()->json([
-            'message' => 'Tarefas listadas com sucesso!',
-            'data' => $taskDTO
-        ]);
+    public function __construct(TasksService $service)
+    {
+        $this->service = $service;
     }
-
-    public function getTasksById(int $id)
+    
+    public function getAllTasks(Request $request): JsonResponse
     {
-        $service = app()->make(TasksService::class);
-        $task = $service->getById($id);
+        try {
+            $filters = $request->only(['status', 'title', 'date']);
 
-        if (!$task) {
+            $data = $this->service->getAll($filters);
+            $taskDTO = TasksDTO::getAll($data->toArray());
+
             return response()->json([
-                'message' => 'Tarefa não encontrada.'
-            ], 404);
+                'message' => 'Tarefas listadas com sucesso!',
+                'data'    => $taskDTO
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao listar tarefas.',
+            ], 500);
         }
-
-        $taskDTO = TasksDTO::get($task->toArray());
-        return response()->json([
-            'message' => 'Tarefa encontrada com sucesso!',
-            'data'    => $taskDTO
-        ]);
-
     }
 
-    public function createTask(Request $request)
+    public function getTasksById(int $id): JsonResponse
     {
-        $service = app()->make(TasksService::class);
-        $data = $request->only(['status', 'description', 'title']);
+        try {
+            $task = $this->service->getById($id);
 
-        $task = $service->create($data);
-        if (!$task) {
+            $taskDTO = TasksDTO::get($task->toArray());
             return response()->json([
-                'message' => 'Status informado não existe.'
-            ], 400);
+                'message' => 'Tarefa encontrada com sucesso!',
+                'data'    => $taskDTO
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar tarefa.',
+            ], 500);
         }
-
-        $taskDTO = InfTasksStatusDTO::get($task->toArray());
-        return response()->json([
-            'message' => 'Tarefa criada com sucesso!',
-            'data'    => $taskDTO['uuid']
-        ]);
     }
 
-    public function updateTask(Request $request, int $id)
+    public function createTask(Request $request): JsonResponse
     {
-        $service = app()->make(TasksService::class);
-        $data = $request->only(['status', 'description', 'title']);
+        try {
+            $data = $request->only(['status', 'description', 'title']);
+            $this->service->create($data);
 
-        $taskUpdated = $service->update($id, $data);
-        if ($taskUpdated) {
             return response()->json([
+                'success' => true,
+                'message' => 'Tarefa criada com sucesso!'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateTask(Request $request, int $id): JsonResponse
+    {
+        try {
+            $data = $request->only(['status', 'description', 'title']);
+            $this->service->update($id, $data);
+
+            return response()->json([
+                'success' => true,
                 'message' => 'Tarefa atualizada com sucesso!'
             ]);
-        } else {
+        } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Não foi possível atualizar a tarefa.'
-            ], 404);
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
-    public function deleteTask(int $id)
+    public function deleteTask(int $id): JsonResponse
     {
-        $service = app()->make(TasksService::class);
-        $taskDeleted = $service->delete($id);
+        try {
+            $this->service->delete($id);
 
-        if ($taskDeleted) {
             return response()->json([
+                'success' => true,
                 'message' => 'Tarefa deletada com sucesso!'
             ]);
-        } else {
+        } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Tarefa não encontrada.'
-            ], 404);
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

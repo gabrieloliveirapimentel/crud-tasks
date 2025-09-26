@@ -37,6 +37,20 @@ class TasksModel extends Model
                 ->first();
     }
 
+    public function getExistsTaskById(int $id)
+    {
+        return $this->select([
+                        'rt.title', 
+                        'rt.description', 
+                        'its.description as status'
+                    ])
+                ->from('reg_tasks as rt')
+                ->join('inf_tasks_status as its', 'rt.id_status', '=', 'its.id')
+                ->where('rt.id', $id)
+                ->where('rt.deleted_at', null)
+                ->first();
+    }
+
     public function getAllTasks()
     {
         return $this->select([
