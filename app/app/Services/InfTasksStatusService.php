@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
-use App\Helpers\Utils;
+use ErrorException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+
 use App\Models\InfTasksStatusModel;
+use App\Validation\InfTasksStatusValidator;
 
 class InfTasksStatusService
 {
@@ -14,43 +16,46 @@ class InfTasksStatusService
         return InfTasksStatusModel::where('deleted_at', null)->get();
     }
 
-    public function getByUuid(string $uuid)
-    {
-        if (!Utils::isValidUuid($uuid)) return null;
-        return InfTasksStatusModel::where('uuid', $uuid)->where('deleted_at', null)->first();
-    }
-
     public function getById(int $id)
     {
-        return InfTasksStatusModel::where('id', $id)->where('deleted_at', null)->first();
+        $status = InfTasksStatusModel::where('id', $id)->where('deleted_at', null)->first();
+
+        if (!$status) throw new ErrorException('Status não encontrado.');
+
+        return $status;
     }
 
     public function create(array $data)
     {
+        (new InfTasksStatusValidator())->validate($data, 'CREATE');
+
         $data['uuid'] = Str::uuid();
+        $data['created_at'] = Carbon::now();
+        $data['updated_at'] = Carbon::now();
+        
         return InfTasksStatusModel::create($data);
     }
 
     public function update(int $id, array $data)
     {
-        $data = [...$data, 'updated_at' => Carbon::now()];
-        $status = InfTasksStatusModel::where('id', $id)->first();
+        (new InfTasksStatusValidator())->validate($data, 'UPDATE');
+        
+        $status = InfTasksStatusModel::where('id', $id)
+            ->where('deleted_at', null)
+            ->first();
 
-        if ($status) {
-            $status->update($data);
-            return true;
-        }
-        return false;
+        if (!$status) throw new ErrorException('Status não encontrado.');
+
+        $data['updated_at'] = Carbon::now();
+        return $status->update($data);
     }
 
     public function delete(int $id)
     {
-        $status = InfTasksStatusModel::where('id', $id)->first();
-        if ($status) {
-            $status->update(['deleted_at' => Carbon::now()]);
-            return true;
-        }
+        $status = InfTasksStatusModel::where('id', $id)->where('deleted_at', null)->first();
+        
+        if (!$status) throw new ErrorException('Status não encontrado.');
 
-        return false;
+        return $status->update(['deleted_at' => Carbon::now()]);
     }
 }
