@@ -22,3 +22,8 @@ $router->group(['prefix' => 'tasks'], function () use ($router) {
     $router->put('{id}', 'TasksController@updateTask');
     $router->delete('{id}', 'TasksController@deleteTask');
 });
+
+$router->group(['prefix' => 'logs'], function () use ($router) {
+    $router->get('', 'LogsController@getAll');
+    $router->get('{id}', 'LogsController@getLogById');
+});
