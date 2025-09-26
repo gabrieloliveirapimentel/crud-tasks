@@ -28,14 +28,18 @@ class LogsModel
         return $this->collection->insertOne($data);
     }
 
-    public function getAllLogs(array $filters)
+    public function getAllLogs(array $filters = [])
     {
-        $query = [];
+        $options = [
+            'sort' => ['created_at' => -1],
+            'limit' => 30 
+        ];
+
         if (!empty($filters)) {
-            $query = array_merge($query, $filters);
+            return $this->collection->find($filters, $options)->toArray();
         }
 
-        return $this->collection->find($query)->toArray();
+        return $this->collection->find([], $options)->toArray();
     }
 
     public function getLogById(string $id)
@@ -46,5 +50,18 @@ class LogsModel
     public function deleteLog(string $id)
     {
         return $this->collection->deleteOne(['_id' => $id]);
+    }
+
+    public function clearOldLogs(int $daysOld = 10): int
+    {
+        $cutoffDate = new \DateTime();
+        $cutoffDate->sub(new \DateInterval("P{$daysOld}D"));
+        $cutoffDateString = $cutoffDate->format('Y-m-d\TH:i:s.v\Z');
+
+        $result = $this->collection->deleteMany([
+            'created_at' => ['$lt' => $cutoffDateString]
+        ]);
+
+        return $result->getDeletedCount();
     }
 }
