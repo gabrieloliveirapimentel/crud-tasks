@@ -13,4 +13,14 @@ class Utils
     {
         return \Carbon\Carbon::parse($date)->format('d-m-Y H:i:s');
     }
+
+    public static function formatBSONDocument($documents): array
+    {
+        return array_map(function($document) {
+            if ($document instanceof \MongoDB\Model\BSONDocument) {
+                return iterator_to_array($document);
+            }
+            return (array) $document;
+        }, $documents);
+    }
 }
