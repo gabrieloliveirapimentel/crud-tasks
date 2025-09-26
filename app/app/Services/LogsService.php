@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
+use Carbon\Carbon;
+use ErrorException;
 use App\Models\LogsModel;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class LogsService
 {
@@ -15,15 +16,19 @@ class LogsService
 
     public function getById(string $id)
     {
-        return (new LogsModel())->getLogById($id);
+        $log = (new LogsModel())->getLogById($id);
+
+        if (!$log) throw new ErrorException('Log não encontrado.');
+
+        return $log;
     }
 
     public function create(array $data)
     {
         $data = [
-            '_id' => (string) Str::uuid(),
-            'message' => $data['message'] ?? '',
-            'action' => $data['action'] ?? '',
+            '_id'        => (string) Str::uuid(),
+            'message'    => $data['message'] ?? '',
+            'action'     => $data['action'] ?? '',
             'created_at' => Carbon::now()->toISOString(),
         ];
         return (new LogsModel())->createLog($data);

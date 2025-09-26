@@ -3,39 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\DTO\LogsDTO;
+use App\Services\LogsService;
+
 use App\Helpers\Utils;
 use Illuminate\Http\Request;
-use App\Services\LogsService;
+use Illuminate\Http\JsonResponse;
 use Laravel\Lumen\Routing\Controller;
 
 class LogsController extends Controller
 {
-    public function getAll(Request $request) {
-        $service = app()->make(LogsService::class);
-        $filters = $request->only(['_id']);
+    private LogsService $service;
 
-        $logs = $service->getAll($filters);
-        $logsDTO = LogsDTO::getAll(Utils::formatBSONDocument($logs));
-        return response()->json([
-            'message' => 'Logs listados com sucesso!',
-            'data' => $logsDTO
-        ]);
+    public function __construct(LogsService $service)
+    {
+        $this->service = $service; 
     }
 
-    public function getLogById(string $id) {
-        $service = app()->make(LogsService::class);
-        $log = $service->getById($id);
+    public function getAll(Request $request): JsonResponse
+    {
+        try {
+            $filters = $request->only(['_id']);
 
-        if (!$log) {
+            $logs = $this->service->getAll($filters);
+            $logsDTO = LogsDTO::getAll(Utils::formatBSONDocument($logs));
+            
             return response()->json([
-                'message' => 'Log não encontrado!'
-            ], 404);
+                'success' => true,
+                'message' => 'Logs listados com sucesso!',
+                'data'    => $logsDTO
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao listar logs.',
+            ], 500);
         }
+    }
 
-        $log = LogsDTO::get((array) $log);
-        return response()->json([
-            'message' => 'Log encontrado com sucesso!',
-            'data' => $log
-        ]);
+    public function getLogById(string $id) 
+    {
+        try {
+            $log = $this->service->getById($id);
+            $logDTO = LogsDTO::get((array) $log);
+
+            return response()->json([
+                'message' => 'Log encontrado com sucesso!',
+                'data' => $logDTO
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
