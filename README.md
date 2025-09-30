@@ -45,7 +45,18 @@ sudo systemctl docker.service
 docker-compose -f docker-compose.yml up -d
 ```
 
-4. **Execute as migrações (primeira execução):**
+4. **Instale as dependências:**
+```bash
+# Linux
+docker-compose exec app bash 
+
+# Windows
+docker-compose exec app sh
+
+composer install
+```
+
+5. **Execute as migrações:**
 ```bash
 # Linux
 docker-compose exec app bash 
@@ -56,7 +67,7 @@ docker-compose exec app sh
 php artisan migrate
 ```
 
-5. **Execute os seeders (opcional):**
+6. **Execute os seeders (opcional):**
 Já dentro do container é possível rodar os seeds.
 ```bash
 php artisan db:seed
