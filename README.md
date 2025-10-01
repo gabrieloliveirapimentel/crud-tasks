@@ -73,6 +73,16 @@ Já dentro do container é possível rodar os seeds.
 php artisan db:seed
 ```
 
+**Observação:**
+Em caso de erro de driver ``mysql`` no passo 5, execute:
+
+```bash
+docker-php-ext-install pdo pdo_mysql
+docker-php-ext-enable pdo_mysql
+```
+
+E tente novamente o passo 5.
+
 ## Serviços disponíveis
 - **API:** http://localhost:8000
 - **PostgreSQL:** localhost:5432
