@@ -3,7 +3,7 @@ FROM php:8.3-cli
 # Instalar extensões necessárias
 RUN apt-get update && apt-get install -y \
     libpq-dev unzip git curl && \
-    docker-php-ext-install pdo pdo_pgsql && \
+    docker-php-ext-install pdo pdo_pgsql pdo_mysql && \
     pecl install mongodb && \
     docker-php-ext-enable mongodb
 
